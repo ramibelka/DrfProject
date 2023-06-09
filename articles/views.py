@@ -1,8 +1,12 @@
-from .forms import ArticleForm
 from rest_framework import generics, permissions , status
 from .models import Article , Favoris
 from .serializers import ArticleSerializer , FavoriteSerializer
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+from .filters import ArticleFilter
+
+
 
 #pour Afficher la liste des articles 
 class ArticleListView(generics.ListAPIView):
@@ -41,34 +45,40 @@ class ArticleUpdateDestroyView(generics.UpdateAPIView, generics.DestroyAPIView):
 #favoris :
 
 #ajouter article au favoris 
-class FavoriteCreateView(generics.ListCreateAPIView):
+class FavoriteCreateView(generics.CreateAPIView):
     serializer_class = FavoriteSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    def get_queryset(self):
-        return Favoris.objects.filter(user=self.request.user)
-    
     def create(self, request, *args, **kwargs):
-        article_id = request.data.get('article_id')
+        article_id = kwargs.get('pk')
         try:
             article = Article.objects.get(id=article_id)
         except Article.DoesNotExist:
             return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
-        
+
         favorite, created = Favoris.objects.get_or_create(user=request.user, article=article)
-        
+
         if created:
             serializer = self.get_serializer(favorite)
-            headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response({'error': 'Article already added to favorites'}, status=status.HTTP_400_BAD_REQUEST)
 
-
-# afficher favorite list
+#afficher Liste des favoris 
 class FavoriteListView(generics.ListAPIView):
     serializer_class = FavoriteSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Favoris.objects.filter(user=self.request.user)
+
+ ###############################################################################
+ #filtrage des articles 
+class ArticleSearchListAPIView(generics.ListAPIView):
+    queryset = Article.objects.all()
+    serializer_class = ArticleSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    filterset_class = ArticleFilter
+    search_fields = ['nom_article', 'description']
+    pagination_class = None
+    permission_classes = []

@@ -7,9 +7,12 @@ urlpatterns = [
     #local apps
     path('api/', include('authentication.urls')),
     path('api/', include('articles.urls')),
+    path('api/', include('profiles.urls')),
+    
     #addes rest apps 
     path("api-auth/", include("rest_framework.urls")),#login
     path("api/v1/dj-rest-auth/", include("dj_rest_auth.urls")), #for log in : api/v1/dj-rest-auth/login
+
     
 ]
 #----using : dj_rest_auth.urls :

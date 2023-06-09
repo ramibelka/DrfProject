@@ -1,6 +1,7 @@
 # authentication/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+# from profiles.models import UserProfile
 
 class User(AbstractUser):
 
@@ -14,7 +15,9 @@ class User(AbstractUser):
     numero_de_tel =  models.CharField(max_length=12, null=True)
     description = models.TextField(null=True)
     photo_de_profile = models.ImageField(upload_to='img/profile/', null=True)
-
+    
+#relation avec userprofile table 
+   # user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, default=None, null=True)
 
     def __str__(self):
          return self.username

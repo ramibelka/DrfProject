@@ -22,7 +22,8 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
 #local applications 
     'articles',
-    'authentication.apps.AuthenticationConfig',
+    'authentication',
+    'profiles',
 
 #importing rest framwork applications for authentications and login and out 
     'rest_framework',
@@ -35,6 +36,9 @@ INSTALLED_APPS = [
     'dj_rest_auth',#this will add log in, log out, and password reset API endpoints
     'dj_rest_auth.registration',
     'django_rest_passwordreset',
+    
+#filter de rechercher 
+    'django_filters',
 
     'django.contrib.admin',
     'django.contrib.auth', 
@@ -153,12 +157,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'authentication.User' 
 
+#AUTH_USER_MODEL = 'authentication.UserProfile'
+
+
 LOGIN_URL = 'login'
 
 #LOGIN_REDIRECT_URL = 'home'
 
 LOGOUT_URL = 'logout' 
-
-
-
-

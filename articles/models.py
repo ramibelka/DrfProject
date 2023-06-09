@@ -16,6 +16,18 @@ class Article(models.Model):
         ('NonDisponible', 'NonDisponible'),
     ]
 
+    TAILLE_CHOICES = (
+    ('', 'None'),
+    ('XS', 'Extra Small'),
+    ('S', 'Small'),
+    ('M', 'Medium'),
+    ('L', 'Large'),
+    ('XL', 'Extra Large'),
+    ('XXL', 'Double Extra Large'),
+    ('XXXL', 'Triple Extra Large'),
+)
+
+
     nom_article = models.CharField(max_length=100)
     prix = models.DecimalField(max_digits=8, decimal_places=2,validators=[MinValueValidator(0)] )
     description = models.TextField()
@@ -23,9 +35,12 @@ class Article(models.Model):
     disponibilite = models.CharField(max_length=20, choices=DISPONIBILITE_CHOICES)
     photo = models.ImageField(upload_to='article_photos/%y/%m/%d')
     Etat = models.CharField(max_length=100)
+    taille = models.CharField(max_length=100, choices=TAILLE_CHOICES)
     Date_cr = models.DateTimeField(auto_now_add=True)
-    auteur = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    
+
+    auteur = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)#the user fo the article 
+    # profile_user = models.ForeignKey(UserProfile, on_delete=models.CASCADE,  related_name='articles')#means the profile user of the article
+
     def __str__(self):
         return self.nom_article
  
