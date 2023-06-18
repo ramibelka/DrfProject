@@ -1,5 +1,7 @@
+import os
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,7 +76,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
+    "project.disable_csrf.DisableCSRFMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -86,7 +89,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-              #BASE_DIR.joinpath('templates'),
+              BASE_DIR.joinpath('templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -162,6 +165,10 @@ AUTH_USER_MODEL = 'authentication.User'
 
 LOGIN_URL = 'login'
 
-#LOGIN_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'liste-des-articles'
 
 LOGOUT_URL = 'logout' 
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

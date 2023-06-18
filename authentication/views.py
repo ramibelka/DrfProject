@@ -7,14 +7,21 @@ from .models import User
 from .serializers import UserSerializer
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
+from rest_framework.permissions import BasePermission
 
- 
+
+#we defined this class to ad it to list of permissions cuz only unauthentifacted peaple who can reach teh sign up view and page 
+class IsNotAuthenticated(BasePermission):
+    def has_permission(self, request, view):
+        return not request.user.is_authenticated
 
 User = get_user_model()
+#inscription
+
 class SignUpView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsNotAuthenticated]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -32,7 +39,7 @@ class SignUpView(generics.CreateAPIView):
         return serializer.save()
 
 
-
+#authtentifier
 class LoginView(ObtainAuthToken):
     http_method_names = ['post', 'get']
     def dispatch(self, request, *args, **kwargs):
@@ -50,7 +57,7 @@ class LoginView(ObtainAuthToken):
         return Response({'detail': 'Login GET method not supported. Please use the POST method to login.'})
 
 
-
+#deconnecter 
 class LogoutView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 

@@ -11,7 +11,10 @@ urlpatterns = [
     path('articles/<int:pk>/ajouter-aux-favoris/', views.FavoriteCreateView.as_view(), name='ajouter-aux-favoris'),
     path('list-des-favoris/', views.FavoriteListView.as_view(), name='list-des-favoris'),
 #search and filters 
-path('articles/search-filter/', views.ArticleSearchListAPIView.as_view(), name='article-search'),
+    path('articles/search-filter/', views.ArticleSearchListAPIView.as_view(), name='article-search'),
+
+    path('articles/<int:pk>/comments/ajouter', views.CommentCreateView.as_view(), name='comment-create'),
+    path('articles/comments/<int:pk>/delete', views.CommentDestroyView.as_view(), name='comment-destroy'),
+    path('articles/<int:pk>/like/', views.LikeView.as_view(), name='like'),
 
 ]
-

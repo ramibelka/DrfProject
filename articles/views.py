@@ -1,11 +1,10 @@
 from rest_framework import generics, permissions , status
-from .models import Article , Favoris
-from .serializers import ArticleSerializer , FavoriteSerializer
+from .models import Article , Favoris, Comment, Like
+from .serializers import ArticleSerializer , FavoriteSerializer,CommentSerializer, LikeSerializer
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from .filters import ArticleFilter
-
 
 
 #pour Afficher la liste des articles 
@@ -14,7 +13,7 @@ class ArticleListView(generics.ListAPIView):
     serializer_class = ArticleSerializer
     permission_classes = []
 
-#pour Creer un articles 
+#pour ajouter un articles 
 class ArticleCreateView(generics.CreateAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
@@ -40,6 +39,57 @@ class ArticleUpdateDestroyView(generics.UpdateAPIView, generics.DestroyAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticated,IsArticleOwner]
+
+
+class CommentCreateView(generics.CreateAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+###comments and likes 
+
+class CommentDestroyView(generics.DestroyAPIView):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = super().get_queryset()
+        return queryset.filter(user=user)
+
+
+class LikeView(generics.GenericAPIView):
+    serializer_class = LikeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        article = self.get_object()
+        serializer = self.get_serializer(article)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get_object(self):
+        article_id = self.kwargs['pk']
+        return Article.objects.get(pk=article_id)
+
+    def post(self, request, *args, **kwargs):
+        article = self.get_object()
+        user = request.user
+
+        like, created = Like.objects.get_or_create(user=user, article=article)
+
+        if not created:
+            like.delete()
+            message = 'Like removed.'
+        else:
+            message = 'Like added.'
+
+        serializer = self.get_serializer(article)
+        return Response({'article': serializer.data, 'message': message}, status=status.HTTP_200_OK)
+
 
 ###########################################################################################"
 #favoris :
@@ -73,7 +123,7 @@ class FavoriteListView(generics.ListAPIView):
         return Favoris.objects.filter(user=self.request.user)
 
  ###############################################################################
- #filtrage des articles 
+ #filtrage et rechercher des articles 
 class ArticleSearchListAPIView(generics.ListAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
