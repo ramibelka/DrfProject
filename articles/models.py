@@ -38,13 +38,13 @@ class Article(models.Model):
 
     nom_article = models.CharField(max_length=100)
     prix = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0)])
-    description = models.TextField()
+    description = models.TextField(null=True)
     categorie = models.CharField(max_length=20, choices=CATEGORIES)
-    disponibilite = models.CharField(max_length=20, choices=DISPONIBILITE_CHOICES)
-    photo = models.ImageField(upload_to='article_photos/%y/%m/%d', null=True)
-    Etat = models.CharField(max_length=100)
-    taille = models.CharField(max_length=100, choices=TAILLE_CHOICES)
-    Date_cr = models.DateTimeField(auto_now_add=True)
+    disponibilite = models.CharField(max_length=20, choices=DISPONIBILITE_CHOICES, null=True)
+    photo = models.ImageField(upload_to='article_photos/%y/%m/%d')
+    Etat = models.CharField(max_length=100, null=True)
+    taille = models.CharField(max_length=100, choices=TAILLE_CHOICES, null=True)
+    Date_cr = models.DateTimeField(auto_now_add=True, null=True)
     
     auteur = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='articles')
     

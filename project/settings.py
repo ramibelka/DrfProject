@@ -56,6 +56,15 @@ CORS_ORIGIN_WHITELIST = (
 "http://localhost:8000",
 )
 
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Add your React.js app's URL
+]
+
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]#port 3000 used by react js 
 
 
@@ -73,10 +82,11 @@ REST_FRAMEWORK = {
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     "project.disable_csrf.DisableCSRFMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
