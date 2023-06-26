@@ -1,6 +1,6 @@
 from rest_framework import generics, permissions , status
-from .models import Article , Favoris, Comment, Like
-from .serializers import ArticleSerializer , FavoriteSerializer,CommentSerializer, LikeSerializer
+from .models import Article , Favoris, Comment, Like, Notification
+from .serializers import ArticleSerializer , FavoriteSerializer,CommentSerializer, LikeSerializer, NotificationSerializer
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
@@ -40,7 +40,52 @@ class ArticleUpdateDestroyView(generics.UpdateAPIView, generics.DestroyAPIView):
     serializer_class = ArticleSerializer
     permission_classes = [permissions.IsAuthenticated,IsArticleOwner]
 
+############################################################
+# # # class CategoryArticlesView(generics.RetrieveAPIView):
+# # #     serializer_class = ArticleSerializer
+# # #     permission_classes = [permissions.AllowAny] 
+    
+# # #     def get(self, request):
+# # #         categories = Article.objects.values_list('categorie', flat=True).distinct()  # Retrieve all unique categories
+# # #         categorized_articles = {}  # Dictionary to store categorized articles
+        
+# # #         for category in categories:
+# # #             articles = Article.objects.filter(categorie=category)  # Get articles for each category
+# # #             serialized_articles = self.serializer_class(articles, many=True)  # Serialize articles
+# # #             categorized_articles[category] = serialized_articles.data  # Store serialized articles in the dictionary
+        
+# # #         return Response(categorized_articles)
 
+#recuperer list des article de chaque categorie 
+class MenArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Article.objects.filter(categorie='Men')
+
+class WomenArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Article.objects.filter(categorie='Women')
+
+class KidsArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Article.objects.filter(categorie='Kids')
+
+class SportsArticlesView(generics.ListAPIView):
+    serializer_class = ArticleSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        return Article.objects.filter(categorie='Sport')
+
+########################################################
 class CommentCreateView(generics.CreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -54,7 +99,7 @@ class CommentCreateView(generics.CreateAPIView):
 class CommentDestroyView(generics.DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated,IsArticleOwner]
 
     def get_queryset(self):
         user = self.request.user
@@ -91,10 +136,21 @@ class LikeView(generics.GenericAPIView):
         return Response({'article': serializer.data, 'message': message}, status=status.HTTP_200_OK)
 
 
+##############################################################################""
+#notifications view 
+class NotificationListView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated,IsArticleOwner]
+
+    def get_queryset(self):
+        user = self.request.user
+        return Notification.objects.filter(user=user).order_by('-date_et_heure')
+    
 ###########################################################################################"
 #favoris :
 
 #ajouter article au favoris 
+
 class FavoriteCreateView(generics.CreateAPIView):
     serializer_class = FavoriteSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -106,13 +162,18 @@ class FavoriteCreateView(generics.CreateAPIView):
         except Article.DoesNotExist:
             return Response({'error': 'Article not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        favorite, created = Favoris.objects.get_or_create(user=request.user, article=article)
+        favorite_exists = Favoris.objects.filter(user=request.user, article=article).exists()
 
-        if created:
+        if favorite_exists:
+            # Remove the article from favorites
+            Favoris.objects.filter(user=request.user, article=article).delete()
+            return Response({'message': 'Article removed from favorites'}, status=status.HTTP_200_OK)
+        else:
+            # Add the article to favorites
+            favorite = Favoris(user=request.user, article=article)
+            favorite.save()
             serializer = self.get_serializer(favorite)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'error': 'Article already added to favorites'}, status=status.HTTP_400_BAD_REQUEST)
 
 #afficher Liste des favoris 
 class FavoriteListView(generics.ListAPIView):

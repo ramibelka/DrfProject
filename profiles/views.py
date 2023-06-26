@@ -41,7 +41,16 @@ class ProfileDetailView(generics.RetrieveAPIView):
         obj.profile_user.following.all()  # Prefetch related followings
         return obj
 
+#####################################
+## profile de l'utilisateur current 
+class CurrentProfileView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ProfileSerializer
 
+    def get_object(self):
+        return self.request.user.userprofile
+
+#####################################
 class UserRatingCreateView(generics.CreateAPIView):
     serializer_class = UserRatingSerializer
     permission_classes = [permissions.IsAuthenticated]

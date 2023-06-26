@@ -14,7 +14,8 @@ class User(AbstractUser):
     adr_email = models.EmailField( blank=False, null=True)
     password = models.CharField(max_length=100, blank=False, null=True)
     localisation = models.CharField(max_length=100, null=True)
-    numero_de_tel = PhoneNumberField(max_length=13,null=True)
+    #numero_de_tel = PhoneNumberField(max_length=13,null=True)
+    numero_de_tel = models.IntegerField(null=True)
     description = models.TextField(null=True)
     photo_de_profile = models.ImageField(upload_to='profile/', null=True)
     
