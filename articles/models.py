@@ -70,7 +70,7 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
-        return f"Comment by {self.user.username} on {self.article.title}"
+        return f"Comment by {self.user.username} on {self.article.nom_article}" 
 
 
 @receiver(post_save, sender=Like)
@@ -90,9 +90,6 @@ def create_comment_notification(sender, instance, created, **kwargs):
             article=instance.article,
             contenu=f"Your article '{instance.article.nom_article}' was commented on by {instance.user.username}.",
         )
-
-
-
 
 #2eme table afficher list des favoris 
 User = get_user_model()

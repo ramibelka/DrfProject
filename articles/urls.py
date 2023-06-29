@@ -5,7 +5,7 @@ urlpatterns = [
     path('articles/', views.ArticleListView.as_view(), name='liste-des-articles'),
     path('articles/ajouter/', views.ArticleCreateView.as_view(), name='ajouter-article'),
     path('articles/<int:pk>/', views.ArticleRetrieveView.as_view(), name='afficher-article'),
-    path('articles/<int:pk>/modifer/', views.ArticleUpdateDestroyView.as_view(), name='modifer-article'),
+    path('articles/<int:pk>/modifier/', views.ArticleUpdateDestroyView.as_view(), name='modifer-article'),
     path('articles/<int:pk>/supprimer/', views.ArticleUpdateDestroyView.as_view(), name='Supprimer-article'),
 #categories 
     # path('articles/category/', views.CategoryArticlesView.as_view(), name='category_articles'),
@@ -23,6 +23,8 @@ urlpatterns = [
 
     path('articles/<int:pk>/comments/ajouter', views.CommentCreateView.as_view(), name='comment-create'),
     path('articles/comments/<int:pk>/delete', views.CommentDestroyView.as_view(), name='comment-destroy'),
+    path('articles/<int:pk>/comments/', views.CommentListView.as_view(), name='comments'),
+
     path('articles/<int:pk>/like/', views.LikeView.as_view(), name='like'),
 
     path('notifications/', views.NotificationListView.as_view(), name='notification-list'),

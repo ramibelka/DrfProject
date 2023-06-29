@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from articles.serializers import CommentSerializer
 from profiles.models import UserProfile, UserRating
 from articles.models import Article
 from django.db import models
@@ -54,9 +55,38 @@ class UserRatingSerializer(serializers.ModelSerializer):
 
 #article serializer
 class ArticleSerializer(serializers.ModelSerializer):
+    auteur = serializers.ReadOnlyField(source='auteur.username')
+    comments = CommentSerializer(many=True, read_only=True)
+    like_count = serializers.SerializerMethodField(read_only=True)
+    is_liked = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Article
-        fields = ['auteur','nom_article', 'prix', 'description', 'categorie', 'disponibilite', 'photo', 'Etat', 'taille', 'Date_cr']
+        fields = ['id',
+            'auteur',
+            'nom_article',
+            'prix',
+            'description',
+            'categorie',
+            'disponibilite',
+            'photo',
+            'Etat',
+            'taille', 
+            'Date_cr', 
+            'likes', 
+            'comments', 
+            'like_count',
+            'is_liked',]
+        read_only_fields = ['id','likes']
+
+    def get_like_count(self, instance):
+        return instance.likes.count()
+
+    def get_is_liked(self, instance):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            user = request.user
+            return instance.likes.filter(user=user).exists()
+        return False
 
 #profile serializer
 class ProfileSerializer(serializers.ModelSerializer):
@@ -83,7 +113,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         return following_usernames
 
     def get_articles(self, obj):
-        articles = obj.articles.all()
+        articles = obj.profile_user.articles.all()
         article_data = []
         for article in articles:
             serialized_article = ArticleSerializer(article).data
@@ -111,4 +141,3 @@ class ProfileSerializer(serializers.ModelSerializer):
                     'raters_count',
                     'total_ratings'
                 ]
-

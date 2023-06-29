@@ -96,15 +96,30 @@ class CommentCreateView(generics.CreateAPIView):
 
 ###comments and likes 
 
+class IsCommentOwner(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        # Check if the authenticated user is the owner of the comment
+        return obj.user == request.user
+    
 class CommentDestroyView(generics.DestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticated,IsArticleOwner]
+    permission_classes = [permissions.IsAuthenticated ,IsCommentOwner]
 
     def get_queryset(self):
         user = self.request.user
         queryset = super().get_queryset()
         return queryset.filter(user=user)
+    
+class CommentListView(generics.ListAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsCommentOwner]
+
+    def get_queryset(self):
+        article_id = self.kwargs['pk']
+        return Comment.objects.filter(article_id=article_id)
+
+#################################################
 
 
 class LikeView(generics.GenericAPIView):
