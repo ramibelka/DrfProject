@@ -16,6 +16,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'article', 'comment', 'created_at']
 
 class ArticleSerializer(serializers.ModelSerializer):
+    auteur_id = serializers.ReadOnlyField(source='auteur.id')
     auteur = serializers.ReadOnlyField(source='auteur.username')
     comments = CommentSerializer(many=True, read_only=True)
     like_count = serializers.SerializerMethodField(read_only=True)
@@ -25,6 +26,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = ['id',
+            'auteur_id',
             'auteur',
             'nom_article',
             'photo_de_profile',
@@ -40,7 +42,7 @@ class ArticleSerializer(serializers.ModelSerializer):
             'comments', 
             'like_count',
             'is_liked',]
-        read_only_fields = ['id','likes']
+        read_only_fields = ['id','likes','auteur_id', 'Date_cr']
 
     def get_like_count(self, instance):
         return instance.likes.count()
