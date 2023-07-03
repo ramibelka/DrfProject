@@ -95,8 +95,8 @@ def create_comment_notification(sender, instance, created, **kwargs):
 User = get_user_model()
 
 class Favoris(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='favoris')
+    article = models.ForeignKey(Article, on_delete=models.CASCADE,related_name='favoris')
 
     def __str__(self):
         return f"{self.user.username} - {self.article.nom_article}"

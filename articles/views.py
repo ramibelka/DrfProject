@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from .filters import ArticleFilter
+from django.db.models import Count
 
 
 #pour Afficher la liste des articles 
@@ -12,7 +13,6 @@ class ArticleListView(generics.ListAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
     permission_classes = []
-
 #pour ajouter un articles 
 class ArticleCreateView(generics.CreateAPIView):
     queryset = Article.objects.all()

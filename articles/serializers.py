@@ -21,7 +21,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
     like_count = serializers.SerializerMethodField(read_only=True)
     is_liked = serializers.SerializerMethodField(read_only=True)
-
+    is_saved = serializers.SerializerMethodField(read_only=True)
     photo_de_profile = serializers.SerializerMethodField()
     class Meta:
         model = Article
@@ -41,7 +41,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             'likes', 
             'comments', 
             'like_count',
-            'is_liked',]
+            'is_liked',
+            'is_saved']
         read_only_fields = ['id','likes','auteur_id', 'Date_cr']
 
     def get_like_count(self, instance):
@@ -53,9 +54,21 @@ class ArticleSerializer(serializers.ModelSerializer):
             user = request.user
             return instance.likes.filter(user=user).exists()
         return False
+
+#is saved to show the status or the article wheither its saved or not        
+    def get_is_saved(self, instance):  # Implement the 'is_saved' function
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            user = request.user
+            return instance.favoris.filter(user=user).exists()
+        return False
+    
 #tp display the profile picture of the user in the article section 
     def get_photo_de_profile(self, instance):
-        return instance.auteur.photo_de_profile.url if instance.auteur.photo_de_profile else None
+        if instance.auteur.photo_de_profile:
+            return 'http://127.0.0.1:8000'+instance.auteur.photo_de_profile.url
+        else:
+            return None
 
 class FavoriteSerializer(serializers.ModelSerializer):
     article = ArticleSerializer(read_only=True)

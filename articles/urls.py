@@ -20,12 +20,12 @@ urlpatterns = [
     path('favoris/', views.FavoriteListView.as_view(), name='list-des-favoris'),
 #search and filters 
     path('articles/search-filter/', views.ArticleSearchListAPIView.as_view(), name='article-search'),
-
+#cmments 
     path('articles/<int:pk>/comments/ajouter', views.CommentCreateView.as_view(), name='comment-create'),
     path('articles/comments/<int:pk>/delete', views.CommentDestroyView.as_view(), name='comment-destroy'),
     path('articles/<int:pk>/comments/', views.CommentListView.as_view(), name='comments'),
-
+#likes
     path('articles/<int:pk>/like/', views.LikeView.as_view(), name='like'),
-
+#notifications 
     path('notifications/', views.NotificationListView.as_view(), name='notification-list'),
 ]

@@ -98,12 +98,14 @@ class ProfileSerializer(serializers.ModelSerializer):
     description = serializers.CharField(source='profile_user.description',read_only=True )
     followers = serializers.SerializerMethodField(read_only=True)
     following = serializers.SerializerMethodField(read_only=True)
+    is_followed = serializers.SerializerMethodField(read_only=True)
+
     articles = serializers.SerializerMethodField(read_only=True)
 
    # ratings_received = UserRatingSerializer(many=True, read_only=True)
     total_ratings = serializers.SerializerMethodField(read_only=True)
     raters_count = serializers.SerializerMethodField(read_only=True)
-    
+    average_rating = serializers.SerializerMethodField(read_only=True)
 #tafficher list ta3l folowers w following ms b le nom ta3hem brk
     def get_followers(self, obj):
         followers = obj.profile_user.followers.all()
@@ -115,13 +117,24 @@ class ProfileSerializer(serializers.ModelSerializer):
         following_usernames = [follow.profile_user.username for follow in following]
         return following_usernames
 
+    # def get_articles(self, obj):
+    #     articles = obj.profile_user.articles.all()
+    #     article_data = []
+    #     for article in articles:
+    #         serialized_article = ArticleSerializer(article).data
+    #         article_data.append(serialized_article)
+    #     return article_data
+
+
     def get_articles(self, obj):
         articles = obj.profile_user.articles.all()
         article_data = []
         for article in articles:
             serialized_article = ArticleSerializer(article).data
+            serialized_article['photo'] = 'http://127.0.0.1:8000' + article.photo.url if article.photo else None
             article_data.append(serialized_article)
         return article_data
+
 
     def get_total_ratings(self, obj):
         ratings = UserRating.objects.filter(rated_user=obj.profile_user)
@@ -133,6 +146,19 @@ class ProfileSerializer(serializers.ModelSerializer):
         raters_count = raters.count()
         return raters_count
     
+    def get_is_followed(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            user = request.user
+            return obj.profile_user.followers.filter(profile_user=user).exists()
+        return False
+    
+    def get_average_rating(self, obj):
+        ratings = UserRating.objects.filter(rated_user=obj.profile_user)
+        average_rating = ratings.aggregate(models.Avg('rating'))['rating__avg'] or 0
+        return round(float(average_rating), 1)
+
+    
     class Meta:
         model = UserProfile
         fields = [  'username',
@@ -142,5 +168,7 @@ class ProfileSerializer(serializers.ModelSerializer):
                     'following',
                     'articles',
                     'raters_count',
-                    'total_ratings'
+                    'total_ratings',
+                    'is_followed',
+                    'average_rating',
                 ]
