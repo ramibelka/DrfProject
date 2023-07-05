@@ -28,7 +28,6 @@ class UserProfile(models.Model):
             self.username = self.profile_user.username
         super().save(*args, **kwargs)
 
-
 class UserRating(models.Model):
     rater = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evaluateur',null=True)
     rated_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='evaluated',null=True)

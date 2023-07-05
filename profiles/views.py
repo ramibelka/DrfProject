@@ -10,11 +10,12 @@ from django.db.models import Avg
 
 User = get_user_model()
 
+#creation d'un profie pour chaque utilisateur apres signup
 class ProfileCreationView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def create_user_profile(self, user):
-        UserProfile.objects.get_or_create(profile_user=user)  # Set other attributes as needed
+        UserProfile.objects.get_or_create(profile_user=user) 
 
     def post(self, request):
         user = request.user
@@ -31,18 +32,18 @@ class ProfileDetailView(generics.RetrieveAPIView):
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:
-            UserProfile.objects.get_or_create(profile_user=instance)  # Set other attributes as needed
+            UserProfile.objects.get_or_create(profile_user=instance)  
 
     def get_object(self):
         queryset = self.get_queryset()
         obj = generics.get_object_or_404(queryset, pk=self.kwargs['pk'])
-        obj.articles.all()  # Prefetch related articles
-        obj.profile_user.followers.all()  # Prefetch related followers
-        obj.profile_user.following.all()  # Prefetch related followings
+        obj.articles.all()  #articles
+        obj.profile_user.followers.all()  #  related followers
+        obj.profile_user.following.all()  # related followings
         return obj
 
 #####################################
-## profile de l'utilisateur current 
+## pour afficher profile de l'utilisateur current 
 class CurrentProfileView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProfileSerializer
@@ -73,9 +74,8 @@ class UserRatingListView(generics.ListAPIView):
         user_id = self.request.user.id
         return UserRating.objects.filter(rated_user_id=user_id)
 
-##############################################################"
-# abonne
-
+##############################################################
+#abonner kach wahed 
 class FollowView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProfileSerializer
@@ -87,7 +87,8 @@ class FollowView(generics.GenericAPIView):
             return Response({'message': 'User is already followed'}, status=status.HTTP_400_BAD_REQUEST)
         user_profile.following.add(user_to_follow)
         return Response({'message': 'User followed successfully'}, status=status.HTTP_200_OK)
-
+    
+#desabonner kach wahed 
 class UnfollowView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ProfileSerializer
@@ -99,14 +100,15 @@ class UnfollowView(generics.GenericAPIView):
             return Response({'message': 'User is already unfollowed'}, status=status.HTTP_400_BAD_REQUEST)
         user_profile.following.remove(user_to_unfollow)
         return Response({'message': 'User unfollowed successfully'}, status=status.HTTP_200_OK)
+    
 ############################################################################################
 #evaluation
-
 class UserRatingCreateView(generics.CreateAPIView):
     serializer_class = UserRatingSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = UserRating.objects.all()
-    
+
+    #fonction d'ajouter d'une evaluation 
     def perform_create(self, serializer):
         rated_user = self.get_rated_user()
         if rated_user is not None:
@@ -115,12 +117,15 @@ class UserRatingCreateView(generics.CreateAPIView):
             if UserRating.objects.filter(rater=rater, rated_user=rated_user).exists():
                 raise serializers.ValidationError("You have already rated this user.")
             serializer.save(rated_user=rated_user)
-
+ 
+ #recuperer l'utilisateeur evaluér from the request data.
     def get_rated_user(self):
         username = self.request.data.get('rated_user')
         rated_user = get_object_or_404(User, username=username)
         return rated_user
-
+    
+#mpermettre la mise à jour et la suppression des évaluations. 
+# Il récupère l’objet d’évaluation en fonction de l’évaluateur et de l’utilisateur évalué.
     def get_object(self):
         # Override the get_object method to allow updating and removing ratings
         queryset = self.get_queryset()
@@ -131,7 +136,7 @@ class UserRatingCreateView(generics.CreateAPIView):
 
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
-
+# méthode ta3 requête HTTP utilisée pour apporter des modifications partielles 3la un ressource  wela objet existante.
     def patch(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
@@ -147,6 +152,7 @@ class IsRatedUserOrReadOnly(permissions.BasePermission):
         # Only allow the rated user to modify the object
         return obj.rated_user == request.user
 
+#pour afficher list des evaluateur 
 class UserRatingListView(generics.ListAPIView):
     serializer_class = UserRatingSerializer
     permission_classes = [permissions.IsAuthenticated,]

@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+
+#fonction bhh tgernerer l upload 
 def generate_upload_path(instance, filename):
     # Generate the upload path based on the current date
     return 'article_photos/{}/{}/{}/{}'.format(

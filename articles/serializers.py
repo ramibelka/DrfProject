@@ -3,13 +3,14 @@ from rest_framework import serializers
 from .models import Article ,Favoris , Comment, Like, Notification
 
 
+#serializers ta3 like 
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
     class Meta:
         model = Like
         fields = ['id', 'user', 'created_at']
 
-
+#serializers ta3 comentaire 
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
 
@@ -17,6 +18,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['id', 'user', 'article', 'comment', 'created_at']
 
+#serializers ta3 article
 class ArticleSerializer(serializers.ModelSerializer):
     auteur_id = serializers.ReadOnlyField(source='auteur.id')
     auteur = serializers.ReadOnlyField(source='auteur.username')
@@ -57,14 +59,14 @@ class ArticleSerializer(serializers.ModelSerializer):
             return instance.likes.filter(user=user).exists()
         return False
 
-#is saved to show the status or the article wheither its saved or not        
-    def get_is_saved(self, instance):  # Implement the 'is_saved' function
+#pour afficher status ou l'article ida rahou saved or not        
+    def get_is_saved(self, instance):  
         request = self.context.get('request')
         if request and request.user.is_authenticated:
             user = request.user
             return instance.favoris.filter(user=user).exists()
         return False
-    
+#afficher phtoto de profile ta3 luser f wast article bah yekhdem biha fl frontend 
     def get_photo_de_profile(self, instance):
         request = self.context.get('request')
         if instance.auteur.photo_de_profile and request:
@@ -72,16 +74,14 @@ class ArticleSerializer(serializers.ModelSerializer):
         else:
             return None
         
-        
+#favoris serializers 
 class FavoriteSerializer(serializers.ModelSerializer):
     article = ArticleSerializer(read_only=True)
     class Meta:
         model = Favoris
         fields = ['article']
-        # fields = ['id', 'user', 'article']
-        # read_only_fields = ['id', 'user']
 
-
+#notification serializer 
 class NotificationSerializer(serializers.ModelSerializer):
     article_id = serializers.SerializerMethodField()
 

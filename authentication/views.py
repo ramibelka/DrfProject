@@ -10,19 +10,22 @@ from rest_framework.permissions import AllowAny
 from rest_framework.permissions import BasePermission
 
 
-#we defined this class to ad it to list of permissions cuz only unauthentifacted peaple who can reach teh sign up view and page 
+#we defined this class to ad it to list of permissions cuz only 
+#unauthentifacted peaple who can reach teh sign up view and page 
 class IsNotAuthenticated(BasePermission):
     def has_permission(self, request, view):
         return not request.user.is_authenticated
 
+
 User = get_user_model()
 #inscription
-
 class SignUpView(generics.CreateAPIView):
+    #attribute specifies the queryset njibou  bih list ta3 users 
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsNotAuthenticated]
 
+# method is overridden to handle the POST request for creating a new user.
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -38,8 +41,7 @@ class SignUpView(generics.CreateAPIView):
     def perform_create(self, serializer):
         return serializer.save()
 
-
-#authtentifier
+#Login code view
 class LoginView(ObtainAuthToken):
     http_method_names = ['post', 'get']
     def dispatch(self, request, *args, **kwargs):
@@ -56,8 +58,7 @@ class LoginView(ObtainAuthToken):
     def get(self, request, *args, **kwargs):
         return Response({'detail': 'Login GET method not supported. Please use the POST method to login.'})
 
-
-#deconnecter 
+#logout code views 
 class LogoutView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
