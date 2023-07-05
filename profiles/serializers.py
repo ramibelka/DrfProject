@@ -127,14 +127,14 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
     def get_articles(self, obj):
+        request = self.context.get('request')
         articles = obj.profile_user.articles.all()
         article_data = []
         for article in articles:
-            serialized_article = ArticleSerializer(article).data
-            serialized_article['photo'] = 'http://127.0.0.1:8000' + article.photo.url if article.photo else None
+            serialized_article = ArticleSerializer(article, context={'request': request}).data
+            serialized_article['photo'] = request.build_absolute_uri(article.photo.url) if article.photo else None
             article_data.append(serialized_article)
         return article_data
-
 
     def get_total_ratings(self, obj):
         ratings = UserRating.objects.filter(rated_user=obj.profile_user)

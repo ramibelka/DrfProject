@@ -1,5 +1,7 @@
+from requests import request
 from rest_framework import serializers
 from .models import Article ,Favoris , Comment, Like, Notification
+
 
 class LikeSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
@@ -63,13 +65,14 @@ class ArticleSerializer(serializers.ModelSerializer):
             return instance.favoris.filter(user=user).exists()
         return False
     
-#tp display the profile picture of the user in the article section 
     def get_photo_de_profile(self, instance):
-        if instance.auteur.photo_de_profile:
-            return 'http://127.0.0.1:8000'+instance.auteur.photo_de_profile.url
+        request = self.context.get('request')
+        if instance.auteur.photo_de_profile and request:
+            return request.build_absolute_uri(instance.auteur.photo_de_profile.url)
         else:
             return None
-
+        
+        
 class FavoriteSerializer(serializers.ModelSerializer):
     article = ArticleSerializer(read_only=True)
     class Meta:

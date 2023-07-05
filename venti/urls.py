@@ -10,9 +10,9 @@ urlpatterns = [
     path('api/', include('authentication.urls')),
     path('api/', include('articles.urls')),
     path('api/', include('profiles.urls')),
+    path('api/', include('recommender.urls')),
     #addes rest apps 
     path("api-auth/", include("rest_framework.urls")),#login
-
     path("api/dj-rest-auth/", include("dj_rest_auth.urls")), #for log in : api/dj-rest-auth/login
     ]#+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
