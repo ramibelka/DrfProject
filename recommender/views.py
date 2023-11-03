@@ -4,11 +4,7 @@ from rest_framework.response import Response
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from articles.models import Article
-
-class ArticleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Article
-        fields = '__all__'
+from articles.serializers import ArticleSerializer
 
 class ItemSimilarityView(APIView):
     def get(self, request, article_id):
@@ -38,7 +34,7 @@ class ItemSimilarityView(APIView):
         # Retrieve the similar articles from the database
         similar_articles_queryset = Article.objects.filter(id__in=similar_articles)
 
-        # Serialize the similar articles using the ArticleSerializer
-        serializer = ArticleSerializer(similar_articles_queryset, many=True)
+        # Serialize the similar articles using the existing ArticleSerializer
+        serializer = ArticleSerializer(similar_articles_queryset, many=True, context={'request': request})
 
         return Response(serializer.data)
